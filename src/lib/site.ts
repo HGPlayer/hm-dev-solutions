@@ -4,10 +4,10 @@ export const SITE_URL = "https://hm-dev-solutions.vercel.app";
 
 // WhatsApp com DDI e DDD, só números. Ex.: "5551999998888".
 // Enquanto estiver vazio, os botões de WhatsApp não aparecem.
-export const WHATSAPP_NUMBER = "";
+export const WHATSAPP_NUMBER = "5551994201780";
 
 // E-mail de contato. Enquanto estiver vazio, o e-mail não aparece no site.
-export const CONTACT_EMAIL = "";
+export const CONTACT_EMAIL = "herickpassos13@gmail.com";
 
 export const INSTAGRAM_USER = "hm.devsolutions";
 export const INSTAGRAM_URL = `https://www.instagram.com/${INSTAGRAM_USER}/`;
