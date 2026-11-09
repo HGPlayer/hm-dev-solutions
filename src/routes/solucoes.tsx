@@ -183,7 +183,7 @@ function Solucoes() {
           <p className="hero-in mt-6 max-w-xl text-lg text-muted-foreground md:text-xl" style={{ animationDelay: "240ms" }}>
             Veja a diferença na prática e escolha a solução certa para o seu negócio.
           </p>
-          <div className="hero-in mt-9 flex flex-wrap gap-3" style={{ animationDelay: "360ms" }}>
+          <div className="hero-in mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap" style={{ animationDelay: "360ms" }}>
             <StartButton>
               Começar um projeto <ArrowRight className="h-4 w-4" />
             </StartButton>

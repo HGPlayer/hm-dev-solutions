@@ -180,7 +180,7 @@ function Index() {
           >
             Mas seu cliente consegue te encontrar <strong className="font-semibold text-white">e te contratar?</strong>
           </p>
-          <div className="hero-in mt-9 flex flex-wrap gap-3" style={{ animationDelay: "360ms" }}>
+          <div className="hero-in mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap" style={{ animationDelay: "360ms" }}>
             <StartButton>
               Começar um projeto <ArrowRight className="h-4 w-4" />
             </StartButton>
@@ -427,7 +427,7 @@ function Index() {
 
         {/* CONTATO */}
         <section id="contato" className="mx-auto max-w-6xl scroll-mt-24 px-6 py-24">
-          <div className="glass-strong reveal relative overflow-hidden rounded-[2rem] p-8 md:p-14">
+          <div className="glass-strong reveal relative overflow-hidden rounded-[2rem] p-6 sm:p-8 md:p-14">
             <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-violet/40 blur-3xl" />
             <div className="relative grid gap-12 lg:grid-cols-2 lg:items-center">
               <div>
@@ -438,27 +438,31 @@ function Index() {
                 <p className="mt-6 text-lg text-muted-foreground">
                   Peça seu orçamento sem compromisso. A gente responde rapidinho.
                 </p>
-                <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                  <StartButton>
-                    Começar um projeto <ArrowRight className="h-4 w-4" />
-                  </StartButton>
-                  {WHATSAPP_URL && (
-                    <GhostButton href={WHATSAPP_URL} external>
-                      <WhatsAppIcon className="h-4 w-4" /> WhatsApp
-                    </GhostButton>
-                  )}
-                  <GhostButton href={INSTAGRAM_DM_URL} external>
-                    <Instagram className="h-4 w-4" /> Direct no Instagram
-                  </GhostButton>
-                  {CONTACT_EMAIL && (
-                    <GhostButton href={`mailto:${CONTACT_EMAIL}`}>
-                      <Mail className="h-4 w-4" /> {CONTACT_EMAIL}
-                    </GhostButton>
-                  )}
+                <StartButton className="mt-9 w-full sm:w-auto">
+                  Começar um projeto <ArrowRight className="h-4 w-4" />
+                </StartButton>
+                <p className="mt-7 text-xs uppercase tracking-[0.25em] text-muted-foreground">Ou fale direto</p>
+                <div className="mt-3 grid grid-cols-3 gap-2.5 sm:flex sm:flex-wrap">
+                  {[
+                    WHATSAPP_URL && { href: WHATSAPP_URL, icon: <WhatsAppIcon className="h-5 w-5" />, label: "WhatsApp", ext: true },
+                    { href: INSTAGRAM_DM_URL, icon: <Instagram className="h-5 w-5" />, label: "Instagram", ext: true },
+                    CONTACT_EMAIL && { href: `mailto:${CONTACT_EMAIL}`, icon: <Mail className="h-5 w-5" />, label: "E-mail", ext: false },
+                  ]
+                    .filter((c) => !!c)
+                    .map((c) => (
+                      <a
+                        key={c.label}
+                        href={c.href}
+                        {...(c.ext ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                        className="glass card-lift flex flex-col items-center justify-center gap-1.5 rounded-2xl px-3 py-3.5 text-xs font-medium sm:flex-row sm:gap-2 sm:rounded-full sm:px-6 sm:text-sm"
+                      >
+                        <span className="text-lilac">{c.icon}</span> {c.label}
+                      </a>
+                    ))}
                 </div>
               </div>
 
-              <div className="glass rounded-3xl p-6" aria-hidden="true">
+              <div className="glass hidden rounded-3xl p-6 lg:block" aria-hidden="true">
                 <div className="flex gap-4">
                   <span className="h-12 w-12 shrink-0 rounded-full bg-gradient-to-br from-white/40 to-white/10" />
                   <div className="flex-1">

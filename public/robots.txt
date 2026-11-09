@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://hm-dev-solutions.vercel.app/sitemap.xml
+Sitemap: https://www.hmdevsolutions.com/sitemap.xml

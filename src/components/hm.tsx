@@ -2,7 +2,7 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
 import { Instagram, Mail, Menu, X } from "lucide-react";
-import { CONTACT_EMAIL, INSTAGRAM_URL, INSTAGRAM_USER, WHATSAPP_URL } from "@/lib/site";
+import { CONTACT_EMAIL, INSTAGRAM_URL, WHATSAPP_URL } from "@/lib/site";
 
 const NAV = [
   ["Serviços", "/#servicos"],
@@ -107,7 +107,10 @@ export function SiteHeader() {
       <nav className="glass-strong mx-auto flex max-w-6xl items-center justify-between rounded-full px-4 py-2.5 md:px-6">
         <Link to="/" className="flex items-center gap-3" aria-label="HM Dev Solutions – início">
           <img src="/logo-hm.png" alt="" className="h-8 w-auto" />
-          <span className="hidden text-[0.72rem] font-medium tracking-[0.28em] sm:block">HM DEV SOLUTIONS</span>
+          <span className="text-[0.6rem] font-medium leading-tight tracking-[0.22em] sm:text-[0.72rem] sm:tracking-[0.28em]">
+            HM DEV
+            <span className="block sm:inline"> SOLUTIONS</span>
+          </span>
         </Link>
         <ul className="hidden gap-6 lg:flex">
           {NAV.map(([l, h]) => (
@@ -125,8 +128,14 @@ export function SiteHeader() {
           >
             Começar um projeto
           </Link>
+          <Link
+            to="/comecar"
+            className="bg-brand-gradient rounded-full px-4 py-2 text-[0.72rem] font-semibold md:hidden"
+          >
+            Orçamento
+          </Link>
           <button
-            className="grid h-10 w-10 place-items-center rounded-full lg:hidden"
+            className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/5 lg:hidden"
             onClick={() => setOpen(!open)}
             aria-label="Menu"
             aria-expanded={open}
@@ -162,43 +171,48 @@ export function SiteHeader() {
   );
 }
 
+const footerLink = "flex items-center gap-2 py-1 transition-colors hover:text-white";
+
 export function SiteFooter() {
   return (
-    <footer className="border-t border-white/10">
-      <div className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-12 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-3">
-          <img src="/logo-hm.png" alt="HM Dev Solutions" className="h-9 w-auto" />
-          <div>
+    <footer className="border-t border-white/10 bg-background/40">
+      <div className="mx-auto grid max-w-6xl gap-10 px-6 py-12 md:grid-cols-[1.4fr_1fr_1fr] md:gap-8">
+        <div>
+          <div className="flex items-center gap-3">
+            <img src="/logo-hm.png" alt="HM Dev Solutions" className="h-9 w-auto" />
             <p className="text-sm font-medium tracking-[0.25em]">HM DEV SOLUTIONS</p>
-            <p className="text-xs text-muted-foreground">Sites e sistemas que trazem clientes</p>
+          </div>
+          <p className="mt-4 max-w-xs text-sm text-muted-foreground">
+            Sites e sistemas sob medida para o seu negócio ser encontrado e contratado.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-8 md:col-span-2 md:grid-cols-2">
+          <nav aria-label="Rodapé" className="text-sm text-muted-foreground">
+            <p className="eyebrow mb-3">Navegação</p>
+            <Link to="/" className={footerLink}>Início</Link>
+            <Link to="/solucoes" className={footerLink}>Soluções</Link>
+            <Link to="/comecar" className={footerLink}>Começar um projeto</Link>
+            <Link to="/privacidade" className={footerLink}>Privacidade</Link>
+          </nav>
+          <div className="text-sm text-muted-foreground">
+            <p className="eyebrow mb-3">Contato</p>
+            {WHATSAPP_URL && (
+              <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className={footerLink}>
+                <WhatsAppIcon className="h-4 w-4" /> WhatsApp
+              </a>
+            )}
+            <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className={footerLink}>
+              <Instagram className="h-4 w-4" /> Instagram
+            </a>
+            {CONTACT_EMAIL && (
+              <a href={`mailto:${CONTACT_EMAIL}`} className={footerLink}>
+                <Mail className="h-4 w-4" /> E-mail
+              </a>
+            )}
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-muted-foreground">
-          <Link to="/solucoes" className="hover:text-white">
-            Soluções
-          </Link>
-          <Link to="/comecar" className="hover:text-white">
-            Começar um projeto
-          </Link>
-          <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-white">
-            <Instagram className="h-4 w-4" /> @{INSTAGRAM_USER}
-          </a>
-          {WHATSAPP_URL && (
-            <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-white">
-              <WhatsAppIcon className="h-4 w-4" /> WhatsApp
-            </a>
-          )}
-          {CONTACT_EMAIL && (
-            <a href={`mailto:${CONTACT_EMAIL}`} className="flex items-center gap-2 hover:text-white">
-              <Mail className="h-4 w-4" /> E-mail
-            </a>
-          )}
-          <Link to="/privacidade" className="hover:text-white">
-            Privacidade
-          </Link>
-        </div>
       </div>
-      <p className="pb-8 text-center text-xs text-white/40">
+      <p className="border-t border-white/5 px-6 py-6 text-center text-xs text-white/40">
         © {new Date().getFullYear()} HM Dev Solutions. Todos os direitos reservados.
       </p>
     </footer>

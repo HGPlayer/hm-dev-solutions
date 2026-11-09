@@ -68,42 +68,32 @@ function Comecar() {
   const [link, setLink] = useState("");
   const [ideia, setIdeia] = useState("");
   const [prazo, setPrazo] = useState("");
-  const [erro, setErro] = useState("");
   const [aviso, setAviso] = useState("");
 
   const toggle = (t: string) => setTipos((cur) => (cur.includes(t) ? cur.filter((x) => x !== t) : [...cur, t]));
 
-  // Texto que vai pronto para o WhatsApp, e-mail ou direct
-  const mensagem = () =>
-    [
-      "Olá! Quero começar um projeto com a HM Dev Solutions.",
-      "",
-      `Nome: ${nome.trim()}`,
+  // Texto que vai pronto para o WhatsApp, e-mail ou direct. Nenhum campo é
+  // obrigatório: entra só o que a pessoa preencheu, para não travar o contato.
+  const mensagem = () => {
+    const detalhes = [
+      nome.trim() && `Nome: ${nome.trim()}`,
       negocio.trim() && `Negócio: ${negocio.trim()}`,
       link.trim() && `Instagram/site atual: ${link.trim()}`,
-      `O que preciso: ${tipos.length ? tipos.join(", ") : NAO_SEI}`,
+      tipos.length > 0 && `O que preciso: ${tipos.join(", ")}`,
       prazo && `Prazo: ${prazo}`,
       ideia.trim() && `\nSobre a ideia: ${ideia.trim()}`,
-    ]
-      .filter(Boolean)
-      .join("\n");
-
-  const validar = () => {
-    if (!nome.trim()) return "Escreva seu nome para a gente saber com quem fala.";
-    if (!tipos.length && !ideia.trim()) return "Escolha pelo menos uma opção ou conte sua ideia.";
-    return "";
+    ].filter(Boolean);
+    return ["Olá! Quero fazer um orçamento com a HM Dev Solutions.", ...(detalhes.length ? ["", ...detalhes] : [])].join("\n");
   };
 
   const enviar = async (canal: "whatsapp" | "email" | "instagram") => {
-    const e = validar();
-    setErro(e);
     setAviso("");
-    if (e) return;
     const texto = mensagem();
+    const assunto = ["Orçamento", negocio.trim() || nome.trim()].filter(Boolean).join(" – ");
     if (canal === "whatsapp") {
       window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(texto)}`, "_blank", "noopener");
     } else if (canal === "email") {
-      window.location.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("Novo projeto – " + (negocio.trim() || nome.trim()))}&body=${encodeURIComponent(texto)}`;
+      window.location.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(texto)}`;
     } else {
       // O Instagram não aceita texto pronto no link: copiamos para a pessoa colar no direct
       try {
@@ -142,7 +132,8 @@ function Comecar() {
               Vamos tirar sua ideia <Hl>do papel.</Hl>
             </h1>
             <p className="hero-in mt-6 text-lg text-muted-foreground" style={{ animationDelay: "240ms" }}>
-              Leva menos de 2 minutos. Você responde aqui e a mensagem chega pronta para a gente.
+              Leva menos de 2 minutos e nenhum campo é obrigatório: preencha só o que quiser e a
+              mensagem chega pronta para a gente.
             </p>
             <ol className="hero-in mt-10 space-y-5" style={{ animationDelay: "360ms" }}>
               {[
@@ -179,7 +170,7 @@ function Comecar() {
             <Step n="02" title="Sobre você">
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block text-sm">
-                  <span className="mb-2 block text-muted-foreground">Seu nome *</span>
+                  <span className="mb-2 block text-muted-foreground">Seu nome</span>
                   <input className={inputCls} value={nome} onChange={(e) => setNome(e.target.value)} autoComplete="name" placeholder="Como podemos te chamar?" />
                 </label>
                 <label className="block text-sm">
@@ -211,18 +202,13 @@ function Comecar() {
             </Step>
 
             <div className="border-t border-white/10 pt-8">
-              {erro && (
-                <p role="alert" className="mb-4 rounded-2xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
-                  {erro}
-                </p>
-              )}
               {aviso && (
                 <p role="status" className="mb-4 rounded-2xl border border-lilac/30 bg-violet/15 px-4 py-3 text-sm">
                   {aviso}
                 </p>
               )}
               <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                <button type="submit" className="btn-glow bg-brand-gradient inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold text-white">
+                <button type="submit" className="btn-glow bg-brand-gradient inline-flex w-full items-center justify-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold text-white sm:w-auto">
                   {principal.icon} {principal.label}
                 </button>
                 {WHATSAPP_NUMBER && CONTACT_EMAIL && (

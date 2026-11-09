@@ -1,6 +1,6 @@
 // Endereço público do site. Troque aqui se o site ganhar um domínio próprio
 // (e também em public/sitemap.xml e public/robots.txt).
-export const SITE_URL = "https://hm-dev-solutions.vercel.app";
+export const SITE_URL = "https://www.hmdevsolutions.com";
 
 // WhatsApp com DDI e DDD, só números. Ex.: "5551999998888".
 // Enquanto estiver vazio, os botões de WhatsApp não aparecem.

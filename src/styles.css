@@ -142,7 +142,7 @@
 
 /* ---------- Códigos nas laterais ---------- */
 .code-rail {
-  position: absolute; top: 0; bottom: 0; width: 13rem; overflow: hidden;
+  position: absolute; top: 0; bottom: 0; width: 13rem; padding: 0 1.25rem; overflow: hidden;
   font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
   font-size: 0.68rem; line-height: 2.4; letter-spacing: 0.04em;
   color: rgb(184 162 255 / 16%);
@@ -154,5 +154,10 @@
   color: rgb(196 178 255 / 50%);
   text-shadow: 0 0 8px rgb(150 115 255 / 70%), 0 0 18px rgb(124 92 245 / 35%);
   animation: hm-glow 6s ease-in-out infinite;
+}
+/* Celular: colunas estreitas e mais discretas, só nas bordas */
+@media (max-width: 767px) {
+  .code-rail { width: 2.6rem; padding: 0 0.4rem; font-size: 0.55rem; line-height: 2.6; color: rgb(184 162 255 / 13%); }
+  .code-glow { color: rgb(196 178 255 / 40%); }
 }
 @keyframes hm-glow { 0%, 100% { opacity: .3; } 50% { opacity: 1; } }
