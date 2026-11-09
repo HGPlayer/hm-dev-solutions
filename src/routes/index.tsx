@@ -26,13 +26,8 @@ import {
   useReveal,
 } from "@/components/hm";
 import { SOLUCOES } from "@/lib/solucoes";
-import {
-  CONTACT_EMAIL,
-  INSTAGRAM_DM_URL,
-  INSTAGRAM_USER,
-  SITE_URL,
-  WHATSAPP_URL,
-} from "@/lib/site";
+import { CONTACT_EMAIL, INSTAGRAM_DM_URL, INSTAGRAM_USER, SITE_URL, whatsappUrl } from "@/lib/site";
+import { useDocTitle, useLang, type Dict } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -54,50 +49,16 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const COMPARE = [
-  "Aparece no Google",
-  "Serviços e preços organizados",
-  "Orçamento 24h por dia",
-  "Passa mais credibilidade",
-  "Clientes e conteúdo são seus",
+// Imagens dos cartões de serviço (os textos vêm das traduções, na mesma ordem)
+const SERVICE_IMGS = [
+  { img: "/artes/crie-seu-site.webp", contain: true },
+  { img: "/artes/hora-certa.webp" },
+  { img: "/artes/aumente-vendas.webp" },
+  { img: "/artes/preco-acessivel.webp" },
 ];
-
-const SERVICES = [
-  {
-    img: "/artes/crie-seu-site.webp",
-    alt: "Notebook com formas 3D e o texto Crie seu site",
-    title: "Site profissional",
-    text: "Sua vitrine 24 horas: serviços, fotos e contato em um só lugar, no celular e no computador.",
-    contain: true,
-  },
-  {
-    img: "/artes/hora-certa.webp",
-    alt: "Arte: seja encontrado na hora certa",
-    title: "Apareça no Google",
-    text: "Site preparado para ser encontrado por quem já está procurando o que você vende.",
-  },
-  {
-    img: "/artes/aumente-vendas.webp",
-    alt: "Arte: aumente suas vendas, celular com notificação de venda",
-    title: "Mais contatos e vendas",
-    text: "Botões de WhatsApp e orçamento bem posicionados, que transformam visita em cliente.",
-  },
-  {
-    img: "/artes/preco-acessivel.webp",
-    alt: "Arte: por um preço acessível",
-    title: "Preço que cabe no bolso",
-    text: "Orçamento sob medida para o tamanho do seu negócio, sem mensalidade escondida.",
-  },
-];
-
-const STEPS = [
-  ["Conversa", "Entendemos seu negócio, seus clientes e seu objetivo."],
-  ["Design e código", "Um site com a cara da sua marca, rápido e responsivo."],
-  ["No ar", "Publicamos e deixamos pronto para gerar contatos."],
-] as const;
 
 /* Celular do hero: um perfil de Instagram que não responde às perguntas do cliente */
-function PhoneMock() {
+function PhoneMock({ t }: { t: Dict["home"]["phone"] }) {
   return (
     <div className="relative w-[15.5rem] shrink-0 rounded-[2.6rem] border-[5px] border-white/80 bg-[#0e0a18] p-4 pt-9 shadow-[0_0_80px_-10px_rgb(124_92_245/55%)] sm:w-[17rem]">
       <div className="absolute left-1/2 top-3 h-5 w-24 -translate-x-1/2 rounded-full bg-black" />
@@ -111,11 +72,11 @@ function PhoneMock() {
         </div>
       </div>
       <div className="mt-5 grid grid-cols-2 gap-2 text-xs">
-        <span className="rounded-lg bg-violet py-2 text-center font-semibold">Seguir</span>
-        <span className="rounded-lg bg-white/10 py-2 text-center">Mensagem</span>
+        <span className="rounded-lg bg-violet py-2 text-center font-semibold">{t.follow}</span>
+        <span className="rounded-lg bg-white/10 py-2 text-center">{t.message}</span>
       </div>
       <div className="mt-5 grid grid-cols-4 gap-2 text-center text-[0.55rem] text-white/70">
-        {["Projetos", "Serviços", "Preços", "Contato"].map((l) => (
+        {t.highlights.map((l) => (
           <div key={l}>
             <span className="block">{l}</span>
             <span className="mx-auto mt-1.5 block aspect-square w-full rounded-full border border-lilac/80" />
@@ -155,8 +116,14 @@ function QuestionCard({ icon, children, i }: { icon: ReactNode; children: ReactN
   );
 }
 
+const QUESTION_ICONS = [Box, Tag, Phone];
+
 function Index() {
   useReveal();
+  const { t: all } = useLang();
+  const t = all.home;
+  useDocTitle(t.title);
+  const wa = whatsappUrl(all.whatsappText);
 
   return (
     <div className="overflow-x-hidden">
@@ -166,41 +133,48 @@ function Index() {
         {/* HERO */}
         <section id="inicio" className="relative mx-auto max-w-6xl px-6 pb-24 pt-32 md:pt-40">
           <div className="hero-in">
-            <Eyebrow>Presença digital</Eyebrow>
+            <Eyebrow>{t.hero.eyebrow}</Eyebrow>
           </div>
           <h1
             className="hero-in mt-6 max-w-3xl text-[2.6rem] font-extrabold leading-[1.02] tracking-tight sm:text-6xl md:text-7xl"
             style={{ animationDelay: "120ms" }}
           >
-            Seu negócio está <Hl>no Instagram.</Hl>
+            {t.hero.a}
+            <Hl>{t.hero.hl}</Hl>
           </h1>
           <p
             className="hero-in mt-6 max-w-xl text-lg text-muted-foreground md:text-xl"
             style={{ animationDelay: "240ms" }}
           >
-            Mas seu cliente consegue te encontrar <strong className="font-semibold text-white">e te contratar?</strong>
+            {t.hero.sub}
+            <strong className="font-semibold text-white">{t.hero.subStrong}</strong>
           </p>
           <div className="hero-in mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap" style={{ animationDelay: "360ms" }}>
             <StartButton>
-              Começar um projeto <ArrowRight className="h-4 w-4" />
+              {all.nav.start} <ArrowRight className="h-4 w-4" />
             </StartButton>
             <GhostButton href="#portfolio">
-              Ver portfólio <ArrowRight className="h-4 w-4" />
+              {t.hero.seePortfolio} <ArrowRight className="h-4 w-4" />
             </GhostButton>
           </div>
 
           <div className="mt-16 flex flex-col items-center gap-10 lg:mt-20 lg:flex-row lg:items-center lg:justify-center lg:gap-16">
             <div className="hero-in" style={{ animationDelay: "450ms" }}>
               <div className="bob">
-                <PhoneMock />
+                <PhoneMock t={t.phone} />
               </div>
             </div>
             <div className="flex w-full max-w-md flex-col gap-5">
-              <QuestionCard i={0} icon={<Box className="h-5 w-5" />}>O que você oferece?</QuestionCard>
-              <QuestionCard i={1} icon={<Tag className="h-5 w-5" />}>Quanto custa?</QuestionCard>
-              <QuestionCard i={2} icon={<Phone className="h-5 w-5" />}>Como falo com você?</QuestionCard>
+              {t.hero.questions.map((q, i) => {
+                const Icon = QUESTION_ICONS[i] ?? Box;
+                return (
+                  <QuestionCard key={i} i={i} icon={<Icon className="h-5 w-5" />}>
+                    {q}
+                  </QuestionCard>
+                );
+              })}
               <p className="hero-in pl-2 text-sm text-muted-foreground" style={{ animationDelay: "1200ms" }}>
-                Se o cliente precisa perguntar, você já pode ter perdido a venda.
+                {t.hero.lost}
               </p>
             </div>
           </div>
@@ -210,40 +184,40 @@ function Index() {
         <section id="problema" className="mx-auto max-w-6xl scroll-mt-24 px-6 py-24">
           <div className="grid items-center gap-14 lg:grid-cols-2">
             <div className="reveal">
-              <Eyebrow>Por que ter um site</Eyebrow>
+              <Eyebrow>{t.problem.eyebrow}</Eyebrow>
               <SectionTitle>
-                Instagram é alugado. <Hl>Site é seu.</Hl>
+                {t.problem.a}
+                <Hl>{t.problem.hl}</Hl>
               </SectionTitle>
-              <p className="mt-6 max-w-md text-lg text-muted-foreground">
-                Se o algoritmo muda, seu alcance cai. Seu site continua no ar, trabalhando por você.
-              </p>
+              <p className="mt-6 max-w-md text-lg text-muted-foreground">{t.problem.text}</p>
               <p className="glass mt-8 inline-block rounded-full px-6 py-3 font-semibold">
-                O Instagram atrai. <span className="text-lilac">O site converte.</span>
+                {t.problem.pillA}
+                <span className="text-lilac">{t.problem.pillB}</span>
               </p>
             </div>
             <div className="glass reveal overflow-hidden rounded-3xl" style={delay(1)}>
               <table className="w-full text-left text-sm md:text-base">
-                <caption className="sr-only">Comparação entre ter só Instagram e ter um site</caption>
+                <caption className="sr-only">{t.problem.caption}</caption>
                 <thead>
                   <tr className="border-b">
                     <th scope="col" className="p-5 font-normal" />
                     <th scope="col" className="w-24 p-4 text-center text-[0.65rem] font-normal uppercase tracking-[0.2em] text-muted-foreground md:w-32">
-                      Só Instagram
+                      {t.problem.onlyIg}
                     </th>
                     <th scope="col" className="w-24 bg-violet/25 p-4 text-center text-[0.65rem] font-semibold uppercase tracking-[0.2em] md:w-32">
-                      Com site
+                      {t.problem.withSite}
                     </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {COMPARE.map((row) => (
+                  {t.problem.rows.map((row) => (
                     <tr key={row} className="border-b last:border-0">
                       <th scope="row" className="p-5 font-normal">{row}</th>
                       <td className="text-center text-white/40">
-                        <X className="mx-auto h-5 w-5" aria-label="Não" />
+                        <X className="mx-auto h-5 w-5" aria-label={t.problem.no} />
                       </td>
                       <td className="bg-violet/25 text-center text-lilac">
-                        <Check className="mx-auto h-5 w-5" aria-label="Sim" />
+                        <Check className="mx-auto h-5 w-5" aria-label={t.problem.yes} />
                       </td>
                     </tr>
                   ))}
@@ -256,46 +230,48 @@ function Index() {
         {/* SERVIÇOS */}
         <section id="servicos" className="mx-auto max-w-6xl scroll-mt-24 px-6 py-24">
           <div className="reveal max-w-2xl">
-            <Eyebrow>Site profissional</Eyebrow>
+            <Eyebrow>{t.services.eyebrow}</Eyebrow>
             <SectionTitle>
-              Seu site é a vitrine <Hl>que nunca fecha.</Hl>
+              {t.services.a}
+              <Hl>{t.services.hl}</Hl>
             </SectionTitle>
-            <p className="mt-6 text-lg text-muted-foreground">
-              Serviços, preços e contato em um só lugar, 24 horas por dia.
-            </p>
+            <p className="mt-6 text-lg text-muted-foreground">{t.services.text}</p>
             <ul className="mt-7 flex flex-wrap gap-3">
-              {["Rápido", "Responsivo", "Aparece no Google"].map((p) => (
+              {t.services.pills.map((p) => (
                 <li key={p} className="glass rounded-full px-5 py-2 text-sm">{p}</li>
               ))}
             </ul>
           </div>
           <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {SERVICES.map((s, i) => (
-              <article key={s.title} className="glass card-lift reveal flex flex-col rounded-3xl p-3" style={delay(i)}>
-                <div className="aspect-[4/5] overflow-hidden rounded-[1.1rem] bg-gradient-to-br from-[#2a1856] to-[#120a24]">
-                  <img
-                    src={s.img}
-                    alt={s.alt}
-                    loading="lazy"
-                    className={`h-full w-full ${s.contain ? "object-contain p-3" : "object-cover"}`}
-                  />
-                </div>
-                <div className="p-3 pt-5">
-                  <h3 className="text-lg font-semibold">{s.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.text}</p>
-                </div>
-              </article>
-            ))}
+            {t.services.items.map((s, i) => {
+              const media = SERVICE_IMGS[i];
+              return (
+                <article key={i} className="glass card-lift reveal flex flex-col rounded-3xl p-3" style={delay(i)}>
+                  <div className="aspect-[4/5] overflow-hidden rounded-[1.1rem] bg-gradient-to-br from-[#2a1856] to-[#120a24]">
+                    <img
+                      src={media?.img}
+                      alt={s.alt}
+                      loading="lazy"
+                      className={`h-full w-full ${media?.contain ? "object-contain p-3" : "object-cover"}`}
+                    />
+                  </div>
+                  <div className="p-3 pt-5">
+                    <h3 className="text-lg font-semibold">{s.title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.text}</p>
+                  </div>
+                </article>
+              );
+            })}
           </div>
 
           {/* Além de sites: prévia das soluções */}
           <div className="glass reveal mt-6 flex flex-col gap-6 rounded-[2rem] p-6 md:flex-row md:items-center md:justify-between md:p-8">
             <div>
-              <p className="text-xl font-semibold">Além de sites, sistemas completos.</p>
+              <p className="text-xl font-semibold">{t.services.moreTitle}</p>
               <ul className="mt-4 flex flex-wrap gap-2">
                 {SOLUCOES.slice(1).map((s) => (
                   <li key={s.id} className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3.5 py-1.5 text-xs text-muted-foreground">
-                    <s.icon className="h-3.5 w-3.5 text-lilac" /> {s.title}
+                    <s.icon className="h-3.5 w-3.5 text-lilac" /> {all.sol[s.id]?.title}
                   </li>
                 ))}
               </ul>
@@ -304,7 +280,7 @@ function Index() {
               to="/solucoes"
               className="glass card-lift inline-flex shrink-0 items-center justify-center gap-2 rounded-full px-7 py-3.5 text-sm font-medium"
             >
-              Ver soluções e resultados <ArrowRight className="h-4 w-4" />
+              {t.services.moreLink} <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </section>
@@ -312,13 +288,12 @@ function Index() {
         {/* PORTFÓLIO */}
         <section id="portfolio" className="mx-auto max-w-6xl scroll-mt-24 px-6 py-24">
           <div className="reveal max-w-2xl">
-            <Eyebrow>Portfólio</Eyebrow>
+            <Eyebrow>{t.portfolio.eyebrow}</Eyebrow>
             <SectionTitle>
-              Projetos <Hl>no ar.</Hl>
+              {t.portfolio.a}
+              <Hl>{t.portfolio.hl}</Hl>
             </SectionTitle>
-            <p className="mt-6 text-lg text-muted-foreground">
-              Cada site é feito sob medida para a marca e para o cliente de quem contrata.
-            </p>
+            <p className="mt-6 text-lg text-muted-foreground">{t.portfolio.text}</p>
           </div>
 
           <article className="glass-strong reveal mt-14 grid gap-10 rounded-[2rem] p-5 md:p-8 lg:grid-cols-[1.35fr_1fr] lg:items-center">
@@ -327,7 +302,7 @@ function Index() {
                 href="https://www.fabiopassoscutelaria.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Abrir o site Fábio Passos Cutelaria"
+                aria-label={t.portfolio.frameAria}
                 className="site-frame block overflow-hidden rounded-2xl border border-white/15 bg-[#120c08] shadow-2xl"
               >
                 <div className="flex items-center gap-3 border-b border-white/10 bg-white/5 px-4 py-2.5">
@@ -341,37 +316,23 @@ function Index() {
                   </span>
                 </div>
                 <div className="site-scroll">
-                  <img
-                    src="/projetos/fabio-full.webp"
-                    alt="Página inicial do site Fábio Passos Cutelaria"
-                    loading="lazy"
-                    className="w-full"
-                  />
+                  <img src="/projetos/fabio-full.webp" alt={t.portfolio.imgAlt} loading="lazy" className="w-full" />
                 </div>
               </a>
               <div className="absolute bottom-0 right-0 w-[26%] min-w-[5.5rem] max-w-[9.5rem] overflow-hidden rounded-[1.4rem] border-4 border-white/80 bg-black shadow-2xl">
-                <img src="/projetos/fabio-mobile.webp" alt="O mesmo site aberto no celular" loading="lazy" className="w-full" />
+                <img src="/projetos/fabio-mobile.webp" alt={t.portfolio.mobileAlt} loading="lazy" className="w-full" />
               </div>
               <p className="mt-4 hidden items-center gap-2 text-xs text-muted-foreground md:flex">
-                <MousePointer2 className="h-3.5 w-3.5" /> Passe o mouse no site para ver a página inteira
+                <MousePointer2 className="h-3.5 w-3.5" /> {t.portfolio.hover}
               </p>
             </div>
 
             <div className="lg:pr-4">
-              <p className="eyebrow">Projeto em destaque</p>
+              <p className="eyebrow">{t.portfolio.featured}</p>
               <h3 className="mt-3 text-3xl font-bold leading-tight">Fábio Passos Cutelaria</h3>
-              <p className="mt-4 leading-relaxed text-muted-foreground">
-                Cuteleiro de Canoas (RS) que forja facas artesanais em aço damasco. O trabalho dele
-                vivia no Instagram; agora tem uma vitrine elegante, à altura das peças, com galeria de
-                fotos, história e contato direto para encomendas.
-              </p>
+              <p className="mt-4 leading-relaxed text-muted-foreground">{t.portfolio.desc}</p>
               <ul className="mt-6 space-y-2.5 text-sm">
-                {[
-                  "Design sob medida, com a identidade da marca",
-                  "Galeria com mais de 40 fotos das peças",
-                  "Funciona perfeitamente no celular",
-                  "Domínio próprio e preparado para o Google",
-                ].map((f) => (
+                {t.portfolio.features.map((f) => (
                   <li key={f} className="flex gap-3">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-lilac" /> {f}
                   </li>
@@ -379,7 +340,7 @@ function Index() {
               </ul>
               <div className="mt-8 flex flex-wrap gap-3">
                 <CtaButton href="https://www.fabiopassoscutelaria.com">
-                  Ver site no ar <ArrowUpRight className="h-4 w-4" />
+                  {t.portfolio.live} <ArrowUpRight className="h-4 w-4" />
                 </CtaButton>
               </div>
             </div>
@@ -387,14 +348,14 @@ function Index() {
 
           <div className="reveal mt-6 flex flex-col items-start justify-between gap-5 rounded-[2rem] border border-dashed border-white/20 p-8 md:flex-row md:items-center">
             <div>
-              <p className="text-xl font-semibold">Seu negócio pode ser o próximo.</p>
-              <p className="mt-1 text-muted-foreground">Vamos conversar sobre o site que você precisa.</p>
+              <p className="text-xl font-semibold">{t.portfolio.nextTitle}</p>
+              <p className="mt-1 text-muted-foreground">{t.portfolio.nextText}</p>
             </div>
             <Link
               to="/comecar"
               className="glass card-lift inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 text-sm font-medium"
             >
-              Quero aparecer aqui <ArrowRight className="h-4 w-4" />
+              {t.portfolio.nextBtn} <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </section>
@@ -403,21 +364,22 @@ function Index() {
         <section id="como-funciona" className="mx-auto max-w-6xl scroll-mt-24 px-6 py-24">
           <div className="grid gap-14 lg:grid-cols-[1fr_1.2fr] lg:items-center">
             <div className="reveal">
-              <Eyebrow>Como funciona</Eyebrow>
+              <Eyebrow>{t.how.eyebrow}</Eyebrow>
               <SectionTitle>
-                Seu site no ar em <Hl>3 passos simples.</Hl>
+                {t.how.a}
+                <Hl>{t.how.hl}</Hl>
               </SectionTitle>
-              <p className="mt-6 text-lg text-muted-foreground">Você explica a ideia. A gente cuida do resto.</p>
+              <p className="mt-6 text-lg text-muted-foreground">{t.how.text}</p>
             </div>
             <ol className="space-y-5">
-              {STEPS.map(([t, d], i) => (
-                <li key={t} className="glass card-lift reveal flex items-center gap-5 rounded-3xl p-5 md:p-6" style={delay(i)}>
+              {t.how.steps.map((s, i) => (
+                <li key={i} className="glass card-lift reveal flex items-center gap-5 rounded-3xl p-5 md:p-6" style={delay(i)}>
                   <span className="bg-brand-gradient grid h-14 w-14 shrink-0 place-items-center rounded-full text-xl font-extrabold shadow-[var(--shadow-glow)]">
                     {i + 1}
                   </span>
                   <div>
-                    <h3 className="text-xl font-semibold">{t}</h3>
-                    <p className="mt-1 text-muted-foreground">{d}</p>
+                    <h3 className="text-xl font-semibold">{s.t}</h3>
+                    <p className="mt-1 text-muted-foreground">{s.d}</p>
                   </div>
                 </li>
               ))}
@@ -431,20 +393,19 @@ function Index() {
             <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-violet/40 blur-3xl" />
             <div className="relative grid gap-12 lg:grid-cols-2 lg:items-center">
               <div>
-                <Eyebrow>Seu próximo passo</Eyebrow>
+                <Eyebrow>{t.contact.eyebrow}</Eyebrow>
                 <SectionTitle>
-                  Quer um site que <Hl>traz clientes?</Hl>
+                  {t.contact.a}
+                  <Hl>{t.contact.hl}</Hl>
                 </SectionTitle>
-                <p className="mt-6 text-lg text-muted-foreground">
-                  Peça seu orçamento sem compromisso. A gente responde rapidinho.
-                </p>
+                <p className="mt-6 text-lg text-muted-foreground">{t.contact.text}</p>
                 <StartButton className="mt-9 w-full sm:w-auto">
-                  Começar um projeto <ArrowRight className="h-4 w-4" />
+                  {all.nav.start} <ArrowRight className="h-4 w-4" />
                 </StartButton>
-                <p className="mt-7 text-xs uppercase tracking-[0.25em] text-muted-foreground">Ou fale direto</p>
+                <p className="mt-7 text-xs uppercase tracking-[0.25em] text-muted-foreground">{t.contact.orDirect}</p>
                 <div className="mt-3 grid grid-cols-3 gap-2.5 sm:flex sm:flex-wrap">
                   {[
-                    WHATSAPP_URL && { href: WHATSAPP_URL, icon: <WhatsAppIcon className="h-5 w-5" />, label: "WhatsApp", ext: true },
+                    wa && { href: wa, icon: <WhatsAppIcon className="h-5 w-5" />, label: "WhatsApp", ext: true },
                     { href: INSTAGRAM_DM_URL, icon: <Instagram className="h-5 w-5" />, label: "Instagram", ext: true },
                     CONTACT_EMAIL && { href: `mailto:${CONTACT_EMAIL}`, icon: <Mail className="h-5 w-5" />, label: "E-mail", ext: false },
                   ]
@@ -466,10 +427,10 @@ function Index() {
                 <div className="flex gap-4">
                   <span className="h-12 w-12 shrink-0 rounded-full bg-gradient-to-br from-white/40 to-white/10" />
                   <div className="flex-1">
-                    <p className="text-sm text-muted-foreground">@seunegocio</p>
+                    <p className="text-sm text-muted-foreground">{t.contact.business}</p>
                     <p className="text-brand-gradient text-4xl font-extrabold">SITE</p>
                     <div className="mt-4 rounded-2xl bg-violet/30 px-4 py-3 text-sm">
-                      <strong>@{INSTAGRAM_USER}</strong> Te chamei no direct! ✓
+                      <strong>@{INSTAGRAM_USER}</strong> {t.contact.reply}
                     </div>
                   </div>
                 </div>

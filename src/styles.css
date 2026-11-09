@@ -129,11 +129,18 @@
 .site-scroll img { transition: transform 6s cubic-bezier(.45, 0, .25, 1); }
 .site-frame:hover .site-scroll img, .site-frame:focus-visible .site-scroll img { transform: translateY(calc(-100% + var(--frame-h, 22rem))); }
 
-.mobile-menu {
-  display: grid; grid-template-rows: 0fr; opacity: 0; transform: translateY(-10px); pointer-events: none;
-  transition: grid-template-rows .5s var(--ease-hm), opacity .4s var(--ease-hm), transform .5s var(--ease-hm);
+/* Painéis que abrem (menu do celular, idiomas). A animação fica no próprio
+   painel de vidro: se fosse num elemento em volta, o desfoque só apareceria
+   no fim da animação. */
+.glass-panel {
+  opacity: 0; transform: translateY(-8px) scale(.98); visibility: hidden; pointer-events: none;
+  transform-origin: top right;
+  transition: opacity .35s var(--ease-hm), transform .45s var(--ease-hm), visibility 0s linear .45s;
 }
-.mobile-menu.is-open { grid-template-rows: 1fr; opacity: 1; transform: none; pointer-events: auto; }
+.glass-panel.is-open {
+  opacity: 1; transform: none; visibility: visible; pointer-events: auto;
+  transition: opacity .35s var(--ease-hm), transform .45s var(--ease-hm), visibility 0s;
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
@@ -157,7 +164,7 @@
 }
 /* Celular: colunas estreitas e mais discretas, só nas bordas */
 @media (max-width: 767px) {
-  .code-rail { width: 2.6rem; padding: 0 0.4rem; font-size: 0.55rem; line-height: 2.6; color: rgb(184 162 255 / 13%); }
+  .code-rail { width: 3.1rem; padding: 0 0.4rem; font-size: 0.66rem; line-height: 2.5; color: rgb(184 162 255 / 14%); }
   .code-glow { color: rgb(196 178 255 / 40%); }
 }
 @keyframes hm-glow { 0%, 100% { opacity: .3; } 50% { opacity: 1; } }

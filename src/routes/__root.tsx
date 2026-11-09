@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SITE_URL } from "../lib/site";
 import { CodeRails } from "../components/code-rails";
+import { LangProvider, useLang } from "../lib/i18n";
 
 function Aurora() {
   return (
@@ -26,21 +27,20 @@ function Aurora() {
 }
 
 function NotFoundComponent() {
+  const { t } = useLang();
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
       <Aurora />
       <div className="glass max-w-md rounded-3xl p-10 text-center">
         <h1 className="text-brand-gradient text-7xl font-extrabold">404</h1>
-        <h2 className="mt-4 text-xl font-semibold">Página não encontrada</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          A página que você procura não existe ou mudou de endereço.
-        </p>
+        <h2 className="mt-4 text-xl font-semibold">{t.errors.notFoundTitle}</h2>
+        <p className="mt-2 text-sm text-muted-foreground">{t.errors.notFoundText}</p>
         <div className="mt-6">
           <Link
             to="/"
             className="btn-glow bg-brand-gradient inline-flex items-center justify-center rounded-full px-6 py-2.5 text-sm font-semibold text-white"
           >
-            Voltar ao início
+            {t.errors.back}
           </Link>
         </div>
       </div>
@@ -51,6 +51,7 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
+  const { t } = useLang();
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
@@ -59,10 +60,8 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
     <div className="flex min-h-screen items-center justify-center px-4">
       <Aurora />
       <div className="glass max-w-md rounded-3xl p-10 text-center">
-        <h1 className="text-xl font-semibold tracking-tight">A página não carregou</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Algo deu errado do nosso lado. Tente recarregar a página ou volte ao início.
-        </p>
+        <h1 className="text-xl font-semibold tracking-tight">{t.errors.errorTitle}</h1>
+        <p className="mt-2 text-sm text-muted-foreground">{t.errors.errorText}</p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
             onClick={() => {
@@ -71,13 +70,13 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
             }}
             className="btn-glow bg-brand-gradient inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold text-white"
           >
-            Tentar de novo
+            {t.errors.retry}
           </button>
           <a
             href="/"
             className="glass inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-medium"
           >
-            Voltar ao início
+            {t.errors.back}
           </a>
         </div>
       </div>
@@ -128,7 +127,7 @@ function RootShell({ children }: { children: ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        {children}
+        <LangProvider>{children}</LangProvider>
         <Scripts />
       </body>
     </html>

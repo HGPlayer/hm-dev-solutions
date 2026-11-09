@@ -3,7 +3,8 @@ import { useState, type FormEvent, type ReactNode } from "react";
 import { Check, Copy, Instagram, Mail } from "lucide-react";
 import { Eyebrow, Hl, SiteFooter, SiteHeader, WhatsAppIcon } from "@/components/hm";
 import { SOLUCOES } from "@/lib/solucoes";
-import { CONTACT_EMAIL, INSTAGRAM_DM_URL, INSTAGRAM_USER, SITE_URL, WHATSAPP_NUMBER } from "@/lib/site";
+import { CONTACT_EMAIL, INSTAGRAM_DM_URL, INSTAGRAM_USER, SITE_URL, WHATSAPP_NUMBER, whatsappUrl } from "@/lib/site";
+import { useDocTitle, useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/comecar")({
   validateSearch: (search: Record<string, unknown>): { tipo?: string } =>
@@ -21,8 +22,9 @@ export const Route = createFileRoute("/comecar")({
   component: Comecar,
 });
 
-const PRAZOS = ["Sem pressa", "Em até 1 mês", "Urgente"];
-const NAO_SEI = "Ainda não sei";
+// "Ainda não sei" é guardado por este código, como os tipos de sistema,
+// para a escolha continuar marcada se a pessoa trocar o idioma
+const NAO_SEI = "unsure";
 
 const inputCls =
   "w-full rounded-2xl border border-white/12 bg-white/[0.04] px-4 py-3 text-sm outline-none transition-colors placeholder:text-white/30 focus:border-lilac/60 focus:bg-white/[0.07]";
@@ -59,48 +61,52 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
 }
 
 function Comecar() {
+  const { t: all } = useLang();
+  const t = all.start;
+  useDocTitle(t.title);
   const { tipo } = Route.useSearch();
-  const inicial = SOLUCOES.find((s) => s.id === tipo)?.title;
 
-  const [tipos, setTipos] = useState<string[]>(inicial ? [inicial] : []);
+  const [tipos, setTipos] = useState<string[]>(tipo && all.sol[tipo] ? [tipo] : []);
   const [nome, setNome] = useState("");
   const [negocio, setNegocio] = useState("");
   const [link, setLink] = useState("");
   const [ideia, setIdeia] = useState("");
-  const [prazo, setPrazo] = useState("");
+  const [prazo, setPrazo] = useState<number | null>(null);
   const [aviso, setAviso] = useState("");
 
-  const toggle = (t: string) => setTipos((cur) => (cur.includes(t) ? cur.filter((x) => x !== t) : [...cur, t]));
+  const toggle = (id: string) => setTipos((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]));
+  const nomeTipo = (id: string) => (id === NAO_SEI ? t.notSure : all.sol[id]?.title ?? id);
 
   // Texto que vai pronto para o WhatsApp, e-mail ou direct. Nenhum campo é
   // obrigatório: entra só o que a pessoa preencheu, para não travar o contato.
   const mensagem = () => {
+    const m = t.msg;
     const detalhes = [
-      nome.trim() && `Nome: ${nome.trim()}`,
-      negocio.trim() && `Negócio: ${negocio.trim()}`,
-      link.trim() && `Instagram/site atual: ${link.trim()}`,
-      tipos.length > 0 && `O que preciso: ${tipos.join(", ")}`,
-      prazo && `Prazo: ${prazo}`,
-      ideia.trim() && `\nSobre a ideia: ${ideia.trim()}`,
+      nome.trim() && `${m.name}: ${nome.trim()}`,
+      negocio.trim() && `${m.business}: ${negocio.trim()}`,
+      link.trim() && `${m.link}: ${link.trim()}`,
+      tipos.length > 0 && `${m.need}: ${tipos.map(nomeTipo).join(", ")}`,
+      prazo !== null && `${m.deadline}: ${t.deadlines[prazo]}`,
+      ideia.trim() && `\n${m.idea}: ${ideia.trim()}`,
     ].filter(Boolean);
-    return ["Olá! Quero fazer um orçamento com a HM Dev Solutions.", ...(detalhes.length ? ["", ...detalhes] : [])].join("\n");
+    return [m.hello, ...(detalhes.length ? ["", ...detalhes] : [])].join("\n");
   };
 
   const enviar = async (canal: "whatsapp" | "email" | "instagram") => {
     setAviso("");
     const texto = mensagem();
-    const assunto = ["Orçamento", negocio.trim() || nome.trim()].filter(Boolean).join(" – ");
+    const assunto = [t.msg.subject, negocio.trim() || nome.trim()].filter(Boolean).join(" – ");
     if (canal === "whatsapp") {
-      window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(texto)}`, "_blank", "noopener");
+      window.open(whatsappUrl(texto), "_blank", "noopener");
     } else if (canal === "email") {
       window.location.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(texto)}`;
     } else {
       // O Instagram não aceita texto pronto no link: copiamos para a pessoa colar no direct
       try {
         await navigator.clipboard.writeText(texto);
-        setAviso("Mensagem copiada! Cole no direct que acabou de abrir.");
+        setAviso(t.copied);
       } catch {
-        setAviso("Abrimos o direct. Conte lá o que você escreveu aqui.");
+        setAviso(t.opened);
       }
       window.open(INSTAGRAM_DM_URL, "_blank", "noopener");
     }
@@ -112,10 +118,10 @@ function Comecar() {
   };
 
   const principal = WHATSAPP_NUMBER
-    ? { icon: <WhatsAppIcon className="h-4 w-4" />, label: "Enviar pelo WhatsApp" }
+    ? { icon: <WhatsAppIcon className="h-4 w-4" />, label: t.sendWhatsapp }
     : CONTACT_EMAIL
-      ? { icon: <Mail className="h-4 w-4" />, label: "Enviar por e-mail" }
-      : { icon: <Copy className="h-4 w-4" />, label: "Copiar e abrir o direct" };
+      ? { icon: <Mail className="h-4 w-4" />, label: t.sendEmail }
+      : { icon: <Copy className="h-4 w-4" />, label: t.sendDirect };
 
   return (
     <div className="overflow-x-hidden">
@@ -126,26 +132,22 @@ function Comecar() {
           {/* Lado esquerdo: chamada e o que acontece depois */}
           <div className="lg:sticky lg:top-32 lg:self-start">
             <div className="hero-in">
-              <Eyebrow>Começar um projeto</Eyebrow>
+              <Eyebrow>{t.eyebrow}</Eyebrow>
             </div>
             <h1 className="hero-in mt-6 text-5xl font-extrabold leading-[1.03] tracking-tight md:text-6xl" style={{ animationDelay: "120ms" }}>
-              Vamos tirar sua ideia <Hl>do papel.</Hl>
+              {t.a}
+              <Hl>{t.hl}</Hl>
             </h1>
             <p className="hero-in mt-6 text-lg text-muted-foreground" style={{ animationDelay: "240ms" }}>
-              Leva menos de 2 minutos e nenhum campo é obrigatório: preencha só o que quiser e a
-              mensagem chega pronta para a gente.
+              {t.text}
             </p>
             <ol className="hero-in mt-10 space-y-5" style={{ animationDelay: "360ms" }}>
-              {[
-                ["Você conta a ideia", "Sem termos técnicos: fale do seu negócio como falaria com um amigo."],
-                ["A gente responde", "Tiramos dúvidas e indicamos a melhor solução para o seu caso."],
-                ["Orçamento sob medida", "Você recebe a proposta e decide sem compromisso."],
-              ].map(([t, d], i) => (
-                <li key={t} className="flex gap-4">
+              {t.steps.map((s, i) => (
+                <li key={i} className="flex gap-4">
                   <span className="font-mono text-sm text-lilac">0{i + 1}</span>
                   <div>
-                    <p className="font-semibold">{t}</p>
-                    <p className="mt-1 text-sm text-muted-foreground">{d}</p>
+                    <p className="font-semibold">{s.t}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{s.d}</p>
                   </div>
                 </li>
               ))}
@@ -154,47 +156,44 @@ function Comecar() {
 
           {/* Formulário */}
           <form onSubmit={onSubmit} noValidate className="glass-strong hero-in space-y-8 rounded-[2rem] p-6 md:p-10" style={{ animationDelay: "300ms" }}>
-            <Step n="01" title="O que você precisa?">
+            <Step n="01" title={t.q1}>
               <div className="flex flex-wrap gap-2.5">
-                {SOLUCOES.map((s) => (
-                  <Chip key={s.id} active={tipos.includes(s.title)} onClick={() => toggle(s.title)}>
-                    {s.title}
+                {[...SOLUCOES.map((s) => s.id), NAO_SEI].map((id) => (
+                  <Chip key={id} active={tipos.includes(id)} onClick={() => toggle(id)}>
+                    {nomeTipo(id)}
                   </Chip>
                 ))}
-                <Chip active={tipos.includes(NAO_SEI)} onClick={() => toggle(NAO_SEI)}>
-                  {NAO_SEI}
-                </Chip>
               </div>
             </Step>
 
-            <Step n="02" title="Sobre você">
+            <Step n="02" title={t.q2}>
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block text-sm">
-                  <span className="mb-2 block text-muted-foreground">Seu nome</span>
-                  <input className={inputCls} value={nome} onChange={(e) => setNome(e.target.value)} autoComplete="name" placeholder="Como podemos te chamar?" />
+                  <span className="mb-2 block text-muted-foreground">{t.name}</span>
+                  <input className={inputCls} value={nome} onChange={(e) => setNome(e.target.value)} autoComplete="name" placeholder={t.namePh} />
                 </label>
                 <label className="block text-sm">
-                  <span className="mb-2 block text-muted-foreground">Nome do negócio</span>
-                  <input className={inputCls} value={negocio} onChange={(e) => setNegocio(e.target.value)} autoComplete="organization" placeholder="Ex.: Studio Bella" />
+                  <span className="mb-2 block text-muted-foreground">{t.business}</span>
+                  <input className={inputCls} value={negocio} onChange={(e) => setNegocio(e.target.value)} autoComplete="organization" placeholder={t.businessPh} />
                 </label>
                 <label className="block text-sm sm:col-span-2">
-                  <span className="mb-2 block text-muted-foreground">Instagram ou site atual</span>
-                  <input className={inputCls} value={link} onChange={(e) => setLink(e.target.value)} placeholder="@seunegocio ou seunegocio.com.br" />
+                  <span className="mb-2 block text-muted-foreground">{t.link}</span>
+                  <input className={inputCls} value={link} onChange={(e) => setLink(e.target.value)} placeholder={t.linkPh} />
                 </label>
               </div>
             </Step>
 
-            <Step n="03" title="Conte sua ideia">
+            <Step n="03" title={t.q3}>
               <textarea
                 className={`${inputCls} min-h-32 resize-y`}
                 value={ideia}
                 onChange={(e) => setIdeia(e.target.value)}
-                placeholder="O que você vende, quem são seus clientes e o que espera do projeto…"
+                placeholder={t.ideaPh}
               />
-              <p className="mb-3 mt-5 text-sm text-muted-foreground">Para quando?</p>
+              <p className="mb-3 mt-5 text-sm text-muted-foreground">{t.when}</p>
               <div className="flex flex-wrap gap-2.5">
-                {PRAZOS.map((p) => (
-                  <Chip key={p} active={prazo === p} onClick={() => setPrazo(prazo === p ? "" : p)}>
+                {t.deadlines.map((p, i) => (
+                  <Chip key={i} active={prazo === i} onClick={() => setPrazo(prazo === i ? null : i)}>
                     {p}
                   </Chip>
                 ))}
@@ -213,18 +212,18 @@ function Comecar() {
                 </button>
                 {WHATSAPP_NUMBER && CONTACT_EMAIL && (
                   <button type="button" onClick={() => void enviar("email")} className="glass card-lift inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm">
-                    <Mail className="h-4 w-4" /> Por e-mail
+                    <Mail className="h-4 w-4" /> {t.byEmail}
                   </button>
                 )}
                 {(WHATSAPP_NUMBER || CONTACT_EMAIL) && (
                   <button type="button" onClick={() => void enviar("instagram")} className="glass card-lift inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm">
-                    <Instagram className="h-4 w-4" /> Pelo direct
+                    <Instagram className="h-4 w-4" /> {t.byDirect}
                   </button>
                 )}
               </div>
               <p className="mt-4 text-xs text-muted-foreground">
-                Nada fica salvo no site: a mensagem abre pronta no aplicativo que você escolher
-                {WHATSAPP_NUMBER || CONTACT_EMAIL ? "" : ` (direct do @${INSTAGRAM_USER})`}.
+                {t.note}
+                {WHATSAPP_NUMBER || CONTACT_EMAIL ? "" : ` (@${INSTAGRAM_USER})`}
               </p>
             </div>
           </form>

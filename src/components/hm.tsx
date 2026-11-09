@@ -1,15 +1,16 @@
 // Peças compartilhadas pelas páginas do site: cabeçalho, rodapé, botões e títulos.
 import { Link } from "@tanstack/react-router";
-import { useEffect, useState, type ReactNode } from "react";
-import { Instagram, Mail, Menu, X } from "lucide-react";
-import { CONTACT_EMAIL, INSTAGRAM_URL, WHATSAPP_URL } from "@/lib/site";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Check, Instagram, Mail, Menu, X } from "lucide-react";
+import { CONTACT_EMAIL, INSTAGRAM_URL, whatsappUrl } from "@/lib/site";
+import { LANGS, useLang } from "@/lib/i18n";
 
 const NAV = [
-  ["Serviços", "/#servicos"],
-  ["Soluções", "/solucoes"],
-  ["Resultados", "/solucoes#resultados"],
-  ["Portfólio", "/#portfolio"],
-  ["Contato", "/#contato"],
+  ["services", "/#servicos"],
+  ["solutions", "/solucoes"],
+  ["results", "/solucoes#resultados"],
+  ["portfolio", "/#portfolio"],
+  ["contact", "/#contato"],
 ] as const;
 
 // Mostra com animação os elementos com a classe "reveal" quando entram na tela.
@@ -88,84 +89,142 @@ export function GhostButton({ href, children, external = false }: { href: string
 }
 
 // Botão que leva à página "Começar um projeto" (navegação interna, sem recarregar)
-export function StartButton({ children = "Começar um projeto", className = "" }: { children?: ReactNode; className?: string }) {
+export function StartButton({ children, className = "" }: { children?: ReactNode; className?: string }) {
+  const { t } = useLang();
   return (
     <Link
       to="/comecar"
       className={`btn-glow bg-brand-gradient inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold text-white ${className}`}
     >
-      {children}
+      {children ?? t.nav.start}
     </Link>
   );
 }
 
+// Bolinha discreta de idioma, fora da barra do topo
+function LangSwitch() {
+  const { lang, setLang, t } = useLang();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onClick = (e: MouseEvent) => {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("mousedown", onClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative shrink-0">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        aria-label={t.langLabel}
+        aria-expanded={open}
+        className="glass grid h-9 w-9 place-items-center rounded-full text-[0.6rem] font-medium uppercase tracking-[0.12em] text-white/60 transition-colors hover:text-white"
+      >
+        {lang}
+      </button>
+      <div className={`glass-panel glass-strong absolute right-0 top-full mt-2 w-40 rounded-2xl p-1.5 ${open ? "is-open" : ""}`}>
+        {LANGS.map((l) => (
+          <button
+            key={l.code}
+            type="button"
+            aria-pressed={lang === l.code}
+            onClick={() => {
+              setLang(l.code);
+              setOpen(false);
+            }}
+            className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-xs transition-colors hover:bg-white/5 ${lang === l.code ? "text-white" : "text-muted-foreground"}`}
+          >
+            <span>
+              <span className="mr-2 inline-block w-5 text-[0.6rem] uppercase tracking-widest text-lilac/80">{l.code}</span>
+              {l.label}
+            </span>
+            {lang === l.code && <Check className="h-3.5 w-3.5 text-lilac" />}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function SiteHeader() {
+  const { t } = useLang();
   const [open, setOpen] = useState(false);
 
   return (
     <header className="fixed inset-x-0 top-0 z-40 px-4 pt-4">
-      <nav className="glass-strong mx-auto flex max-w-6xl items-center justify-between rounded-full px-4 py-2.5 md:px-6">
-        <Link to="/" className="flex items-center gap-3" aria-label="HM Dev Solutions – início">
-          <img src="/logo-hm.png" alt="" className="h-8 w-auto" />
-          <span className="text-[0.6rem] font-medium leading-tight tracking-[0.22em] sm:text-[0.72rem] sm:tracking-[0.28em]">
-            HM DEV
-            <span className="block sm:inline"> SOLUTIONS</span>
-          </span>
-        </Link>
-        <ul className="hidden gap-6 lg:flex">
-          {NAV.map(([l, h]) => (
-            <li key={h}>
-              <a href={h} className="text-[0.8rem] text-muted-foreground transition-colors hover:text-white">
-                {l}
-              </a>
-            </li>
-          ))}
-        </ul>
-        <div className="flex items-center gap-2">
-          <Link
-            to="/comecar"
-            className="btn-glow bg-brand-gradient hidden rounded-full px-5 py-2 text-[0.8rem] font-semibold md:inline-block"
-          >
-            Começar um projeto
+      <div className="relative mx-auto flex max-w-6xl items-center gap-2">
+        <nav className="glass-strong flex min-w-0 flex-1 items-center justify-between rounded-full px-3 py-2.5 sm:px-4 md:px-6">
+          <Link to="/" className="flex min-w-0 items-center gap-2 sm:gap-3" aria-label={t.nav.home}>
+            <img src="/logo-hm.png" alt="" className="h-8 w-auto shrink-0" />
+            <span className="text-[0.58rem] font-medium leading-tight tracking-[0.2em] sm:text-[0.72rem] sm:tracking-[0.28em]">
+              HM DEV
+              <span className="block sm:inline"> SOLUTIONS</span>
+            </span>
           </Link>
-          <Link
-            to="/comecar"
-            className="bg-brand-gradient rounded-full px-4 py-2 text-[0.72rem] font-semibold md:hidden"
-          >
-            Orçamento
-          </Link>
-          <button
-            className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/5 lg:hidden"
-            onClick={() => setOpen(!open)}
-            aria-label="Menu"
-            aria-expanded={open}
-          >
-            {open ? <X className="text-lilac" /> : <Menu className="text-lilac" />}
-          </button>
-        </div>
-      </nav>
-      <div className={`mobile-menu mx-auto max-w-6xl lg:hidden ${open ? "is-open" : ""}`}>
-        <div className="min-h-0 overflow-hidden">
-          <div className="glass-strong mt-2 rounded-3xl bg-background/70 p-4">
-            {NAV.map(([l, h]) => (
-              <a
-                key={h}
-                href={h}
-                onClick={() => setOpen(false)}
-                className="block rounded-2xl px-4 py-3 text-sm transition-colors hover:bg-white/5"
-              >
-                {l}
-              </a>
+          <ul className="hidden gap-6 lg:flex">
+            {NAV.map(([k, h]) => (
+              <li key={h}>
+                <a href={h} className="text-[0.8rem] text-muted-foreground transition-colors hover:text-white">
+                  {t.nav[k]}
+                </a>
+              </li>
             ))}
+          </ul>
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             <Link
               to="/comecar"
-              onClick={() => setOpen(false)}
-              className="bg-brand-gradient mt-2 block rounded-full px-5 py-3 text-center text-sm font-semibold"
+              className="btn-glow bg-brand-gradient hidden rounded-full px-5 py-2 text-[0.8rem] font-semibold md:inline-block"
             >
-              Começar um projeto
+              {t.nav.start}
             </Link>
+            <Link
+              to="/comecar"
+              className="bg-brand-gradient rounded-full px-3.5 py-2 text-[0.7rem] font-semibold md:hidden"
+            >
+              {t.nav.quote}
+            </Link>
+            <button
+              className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5 lg:hidden"
+              onClick={() => setOpen(!open)}
+              aria-label={t.nav.menu}
+              aria-expanded={open}
+            >
+              {open ? <X className="h-5 w-5 text-lilac" /> : <Menu className="h-5 w-5 text-lilac" />}
+            </button>
           </div>
-        </div>
+        </nav>
+        <LangSwitch />
+      </div>
+      {/* O vidro fica no próprio painel (e não num elemento em volta), senão o
+          desfoque só aparece no fim da animação */}
+      <div className={`glass-panel glass-strong mx-auto mt-2 max-w-6xl rounded-3xl bg-background/70 p-4 lg:hidden ${open ? "is-open" : ""}`}>
+        {NAV.map(([k, h]) => (
+          <a
+            key={h}
+            href={h}
+            onClick={() => setOpen(false)}
+            className="block rounded-2xl px-4 py-3 text-sm transition-colors hover:bg-white/5"
+          >
+            {t.nav[k]}
+          </a>
+        ))}
+        <Link
+          to="/comecar"
+          onClick={() => setOpen(false)}
+          className="bg-brand-gradient mt-2 block rounded-full px-5 py-3 text-center text-sm font-semibold"
+        >
+          {t.nav.start}
+        </Link>
       </div>
     </header>
   );
@@ -174,6 +233,8 @@ export function SiteHeader() {
 const footerLink = "flex items-center gap-2 py-1 transition-colors hover:text-white";
 
 export function SiteFooter() {
+  const { t } = useLang();
+  const wa = whatsappUrl(t.whatsappText);
   return (
     <footer className="border-t border-white/10 bg-background/40">
       <div className="mx-auto grid max-w-6xl gap-10 px-6 py-12 md:grid-cols-[1.4fr_1fr_1fr] md:gap-8">
@@ -182,22 +243,20 @@ export function SiteFooter() {
             <img src="/logo-hm.png" alt="HM Dev Solutions" className="h-9 w-auto" />
             <p className="text-sm font-medium tracking-[0.25em]">HM DEV SOLUTIONS</p>
           </div>
-          <p className="mt-4 max-w-xs text-sm text-muted-foreground">
-            Sites e sistemas sob medida para o seu negócio ser encontrado e contratado.
-          </p>
+          <p className="mt-4 max-w-xs text-sm text-muted-foreground">{t.footer.tagline}</p>
         </div>
         <div className="grid grid-cols-2 gap-8 md:col-span-2 md:grid-cols-2">
-          <nav aria-label="Rodapé" className="text-sm text-muted-foreground">
-            <p className="eyebrow mb-3">Navegação</p>
-            <Link to="/" className={footerLink}>Início</Link>
-            <Link to="/solucoes" className={footerLink}>Soluções</Link>
-            <Link to="/comecar" className={footerLink}>Começar um projeto</Link>
-            <Link to="/privacidade" className={footerLink}>Privacidade</Link>
+          <nav aria-label={t.footer.navigation} className="text-sm text-muted-foreground">
+            <p className="eyebrow mb-3">{t.footer.navigation}</p>
+            <Link to="/" className={footerLink}>{t.footer.home}</Link>
+            <Link to="/solucoes" className={footerLink}>{t.nav.solutions}</Link>
+            <Link to="/comecar" className={footerLink}>{t.nav.start}</Link>
+            <Link to="/privacidade" className={footerLink}>{t.footer.privacy}</Link>
           </nav>
           <div className="text-sm text-muted-foreground">
-            <p className="eyebrow mb-3">Contato</p>
-            {WHATSAPP_URL && (
-              <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className={footerLink}>
+            <p className="eyebrow mb-3">{t.footer.contact}</p>
+            {wa && (
+              <a href={wa} target="_blank" rel="noopener noreferrer" className={footerLink}>
                 <WhatsAppIcon className="h-4 w-4" /> WhatsApp
               </a>
             )}
@@ -213,7 +272,7 @@ export function SiteFooter() {
         </div>
       </div>
       <p className="border-t border-white/5 px-6 py-6 text-center text-xs text-white/40">
-        © {new Date().getFullYear()} HM Dev Solutions. Todos os direitos reservados.
+        © {new Date().getFullYear()} HM Dev Solutions. {t.footer.rights}
       </p>
     </footer>
   );
