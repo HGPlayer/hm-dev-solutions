@@ -56,7 +56,8 @@ function Privacidade() {
 
         <Section title="Contato">
           <p>
-            Os botões de contato abrem o WhatsApp, o Instagram ou o seu programa de e-mail. Nada é
+            Os botões de contato e o formulário “Começar um projeto” abrem o WhatsApp, o Instagram
+            ou o seu programa de e-mail com a mensagem pronta. Nada é
             enviado pelo site: a conversa acontece direto nesses aplicativos, e você decide o que
             quer mandar. As informações que você enviar são usadas apenas para responder e preparar
             o seu orçamento, e não são vendidas nem repassadas a terceiros.
